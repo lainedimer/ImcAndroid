@@ -115,10 +115,6 @@ public class IMC extends AppCompatActivity {
                     }
                 })
                 .show();
-        //
-//        if (!peso.isEmpty()) {
-//            text.setText(peso);
-//       }
     }
 }
 
