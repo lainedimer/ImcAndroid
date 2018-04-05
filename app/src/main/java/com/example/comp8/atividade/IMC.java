@@ -1,5 +1,8 @@
 package com.example.comp8.atividade;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.FloatRange;
@@ -10,8 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Locale;
+
 
 /**
  * Created by comp8 on 22/03/2018.
@@ -34,17 +39,32 @@ public class IMC extends AppCompatActivity {
         btnCalcular = (Button) findViewById(R.id.btnCalcular);
         btnLimpar = (Button) findViewById(R.id.btnLimpar);
 
+        btnLimpar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                textPeso.setText("");
+                textAltura.setText("");
+                textPesoIdeal.setText("");
+                textImc.setText("");
+                textInt.setText("");
+
+            }
+        });
 
         btnCalcular.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
 
-                double peso = Double.parseDouble(textPeso.getText().toString());
+                int peso = Integer.parseInt(textPeso.getText().toString());
                 double altura = Double.parseDouble(textAltura.getText().toString());
-                double alturaCm = (altura * 100);
-                double pesoIdeal = (alturaCm - 100) - ((alturaCm - peso) / 4) * (5 / 100);
-                double imc = peso / Math.pow(2,altura);
+                float alturaCm = (float) (altura * 100);
+                float pesoIdeal = (float) ((alturaCm - 100) - (((alturaCm - peso)/ 4) * 0.05));
+                double imc = peso / Math.pow(altura, 2);
+                imc = Math.round(imc);
+                pesoIdeal = Math.round(pesoIdeal);
+
 
                 if (imc < 20) {
                     textInt.setText("Baixo Peso");
@@ -55,6 +75,7 @@ public class IMC extends AppCompatActivity {
                 } else {
                     textInt.setText("Obeso");
                 }
+
                 String pesoIdealS = String.valueOf(pesoIdeal);
                 String imcS = String.valueOf(imc);
                 textPesoIdeal.setText(pesoIdealS);
@@ -68,12 +89,35 @@ public class IMC extends AppCompatActivity {
             }
         });
 
-        SharedPreferences leitura = getSharedPreferences("GRAVA_DISCO", MODE_PRIVATE);
-        final String peso = leitura.getString("key_peso", "");
-        final String altura = leitura.getString("key_altura", "");
-//
+
+        new AlertDialog.Builder(this).setTitle("Confirmação").
+                setMessage("Deseja continuar com os dados anteriores?")
+                .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        SharedPreferences leitura = getSharedPreferences("GRAVA_DISCO", MODE_PRIVATE);
+                        final String peso = leitura.getString("key_peso", "");
+                        final String altura = leitura.getString("key_altura", "");
+                        if (!peso.isEmpty() || !altura.isEmpty()) {
+                            textPeso.setText(peso);
+                            textAltura.setText(altura);
+                        }
+                    }
+                })
+                .setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        textPeso.setText("");
+                        textAltura.setText("");
+                        textPesoIdeal.setText("");
+                        textImc.setText("");
+                        textInt.setText("");
+                    }
+                })
+                .show();
+        //
 //        if (!peso.isEmpty()) {
-//            text.setText(nome);
+//            text.setText(peso);
 //       }
     }
 }
